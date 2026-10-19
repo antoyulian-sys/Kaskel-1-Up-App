@@ -254,6 +254,7 @@
     <!-- Javascript Data & Interaksi -->
     <script>
         // State
+        let kasChart = null; // Penampung grafik Chart.js
         let kasData = JSON.parse(localStorage.getItem('kasData')) || [];
         let stokData = JSON.parse(localStorage.getItem('stokData')) || [];
         let piutangData = JSON.parse(localStorage.getItem('piutangData')) || [];
@@ -411,6 +412,38 @@
                     </button>
                 </li>`;
             });
+            // Render Grafik Chart.js
+            const ctx = document.getElementById('arusKasChart'); // Sesuai dengan ID canvas milikmu
+            if (ctx) {
+                // Hancurkan grafik lama jika sudah ada
+                if (kasChart) {
+                    kasChart.destroy();
+                }
+                
+                // Gambar grafik baru
+                kasChart = new Chart(ctx, {
+                    type: 'bar', 
+                    data: {
+                        labels: ['Kas Masuk', 'Kas Keluar'],
+                        datasets: [{
+                            label: 'Nominal (Rp)',
+                            data: [tMasuk, tKeluar], 
+                            backgroundColor: ['#34d399', '#fb7185'], // Warna emerald dan rose
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, // Wajib agar grafik mengikuti tinggi div "h-72" kodemu
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
 
             // List Piutang UI
             const ulPiutang = document.getElementById('list-piutang');
