@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kas Kel 1 Up - V3 dengan Grafik & PDF</title>
-    <!-- Tailwind CSS -->
+    <title>Kas Kel 1 Up - V5 (Menu Modal Khusus)</title>
+    
+    <!-- ================= LIBRARY & DEPENDENCIES ================= -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SheetJS (Excel) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Chart.js (Grafik) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- jsPDF & AutoTable (Cetak PDF) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ================= CUSTOM STYLES ================= -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -30,20 +29,14 @@
 </head>
 <body class="bg-slate-50 text-slate-800 overflow-hidden flex h-screen">
 
-        <!-- Sidebar / Navigasi Kiri -->
-    <aside id="sidebar" class="bg-white w-64 min-h-screen flex flex-col border-r border-slate-200 transition-transform transform -translate-x-full fixed z-50 lg:relative lg:translate-x-0 shadow-2xl lg:shadow-none duration-300">
-        <!-- Brand Area - Diubah menjadi Centered & Lebih Lega -->
+    <!-- ================= SIDEBAR KIRI ================= -->
+    <!-- Kembali menggunakan layout cerdas: fixed di mobile, relative (selalu tampil) di Desktop -->
+    <aside id="sidebar" class="bg-white w-64 min-h-screen flex flex-col border-r border-slate-200 transition-transform transform -translate-x-full fixed z-40 lg:relative lg:translate-x-0 shadow-2xl lg:shadow-none duration-300">
         <div class="py-6 flex flex-col items-center border-b border-slate-100 relative">
-            
-            <!-- Tombol Close Mobile (Dibuat Absolute agar tidak merusak posisi tengah logo) -->
             <button onclick="toggleSidebar()" class="lg:hidden absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2 transition">
                 <i class="fas fa-times text-xl"></i>
             </button>
-            
-            <!-- Logo 3D 192x192 (Ikon Garpu/Div Lain Sudah Dihapus Total) -->
             <img src="image2.png" alt="Logo Kas Kel 1 Up" class="w-16 h-16 rounded-2xl shadow-md border border-slate-100 object-cover mb-3">
-            
-            <!-- Teks Sentralisasi "Kas Kel 1 Up" -->
             <span class="font-bold text-lg tracking-tight text-slate-800 text-center px-4">Kas Kel 1 Up</span>
         </div>
         
@@ -51,6 +44,9 @@
             <p class="px-2 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Menu Utama</p>
             <button onclick="switchTab('dashboard', this)" class="nav-btn w-full flex items-center px-4 py-3 bg-blue-50 text-blue-700 rounded-xl font-medium transition duration-200">
                 <i class="fas fa-chart-pie w-6"></i> Dashboard
+            </button>
+            <button onclick="switchTab('modal', this)" class="nav-btn w-full flex items-center px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-medium transition duration-200">
+                <i class="fas fa-piggy-bank w-6"></i> Modal Awal
             </button>
             <button onclick="switchTab('transaksi', this)" class="nav-btn w-full flex items-center px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-medium transition duration-200">
                 <i class="fas fa-wallet w-6"></i> Transaksi
@@ -62,56 +58,123 @@
                 <i class="fas fa-file-invoice w-6"></i> Laporan
             </button>
         </div>
+    </aside>
+
+    <div id="overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-30 lg:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- ================= SIDEBAR KANAN (PROFIL AKUN) ================= -->
+    <div id="overlay-right" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-40" onclick="toggleRightSidebar()"></div>
+    
+    <aside id="sidebar-right" class="bg-white w-80 min-h-screen flex flex-col border-l border-slate-200 transition-transform transform translate-x-full fixed right-0 top-0 z-50 shadow-2xl duration-300">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <h2 class="font-bold text-lg text-slate-800"><i class="fas fa-store text-indigo-500 mr-2"></i> Pengaturan Akun</h2>
+            <!-- Tombol close ini sudah diperbaiki menjadi toggleRightSidebar() -->
+            <button onclick="toggleRightSidebar()" class="text-slate-400 hover:text-rose-500 p-2 bg-white rounded-lg shadow-sm border border-slate-100 transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
         
-        <div class="p-4 border-t border-slate-100">
-            <div class="bg-slate-50 rounded-xl p-4 text-center">
-                <p class="text-xs text-slate-500">Versi 3.0 Pro</p>
+        <div class="p-6 flex-1 overflow-y-auto">
+            <!-- Area Ganti Foto -->
+            <div class="flex flex-col items-center mb-8">
+                <div class="relative group cursor-pointer" onclick="document.getElementById('input-foto').click()">
+                    <img id="profil-avatar" src="https://api.dicebear.com/7.x/notionists/svg?seed=BisnisPro" alt="Avatar Profil" class="w-24 h-24 bg-indigo-50 rounded-full border-4 border-white shadow-lg p-1 object-cover">
+                    <!-- Layer hitam transparan saat dihover -->
+                    <div class="absolute inset-0 bg-black/50 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <i class="fas fa-camera text-white text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-3 bg-slate-100 px-3 py-1 rounded-full"><i class="fas fa-hand-pointer mr-1"></i>Klik foto untuk mengubah</p>
+                <input type="file" id="input-foto" accept="image/*" class="hidden" onchange="gantiFoto(event)">
             </div>
+            
+            <!-- Form Data Diri -->
+            <form id="form-profil" onsubmit="simpanProfil(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Nama Pemilik</label>
+                    <input type="text" id="input-nama" class="w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white p-3 border focus:ring-2 focus:ring-indigo-500 outline-none transition" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Nama Usaha / Toko</label>
+                    <input type="text" id="input-usaha" class="w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white p-3 border focus:ring-2 focus:ring-indigo-500 outline-none transition" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Alamat Lengkap</label>
+                    <textarea id="input-alamat" rows="3" class="w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white p-3 border focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="Cth: Jl. Melati No.10..."></textarea>
+                </div>
+                
+                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 px-4 rounded-xl transition shadow-md mt-4 flex items-center justify-center gap-2">
+                    <i class="fas fa-save"></i> Simpan Profil
+                </button>
+            </form>
         </div>
     </aside>
 
-
-    <div id="overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-40 lg:hidden" onclick="toggleSidebar()"></div>
-
-    <!-- Area Konten Utama -->
+    <!-- ================= KONTEN UTAMA ================= -->
     <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        
+        <!-- Header -->
         <header class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center px-4 sm:px-6 z-10 sticky top-0">
+            <!-- Tombol hamburger ini hanya muncul di HP/Tablet (karena lg:hidden aktif kembali) -->
             <button onclick="toggleSidebar()" class="lg:hidden text-slate-500 hover:text-slate-800 focus:outline-none p-2 mr-4 bg-slate-100 rounded-lg transition">
                 <i class="fas fa-bars text-xl"></i>
             </button>
             <h1 id="page-title" class="text-lg font-bold text-slate-800">Overview Dashboard</h1>
-            <div class="ml-auto flex items-center space-x-4">
-                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold border border-indigo-200 shadow-sm">
-                    A
+            
+            <button onclick="toggleRightSidebar()" class="ml-auto flex items-center space-x-3 focus:outline-none hover:bg-slate-50 p-1.5 rounded-full transition border border-transparent hover:border-slate-200 pr-4">
+                <div class="hidden sm:block text-right">
+                    <p id="header-nama" class="text-sm font-bold text-slate-800 leading-none">Memuat...</p>
+                    <p id="header-usaha" class="text-xs text-slate-500 mt-1">Memuat...</p>
                 </div>
-            </div>
+                <img id="header-avatar-img" src="" class="w-9 h-9 rounded-full border border-slate-200 object-cover hidden shadow-sm">
+                <div id="header-avatar-initial" class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-sm">Y</div>
+            </button>
         </header>
 
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50/50 p-4 sm:p-6 lg:p-8">
             
-            <!-- 1. DASHBOARD -->
+            <!-- Teks Konten 1: DASHBOARD -->
             <div id="dashboard" class="tab-content active fade-in max-w-6xl mx-auto">
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-slate-800">Ringkasan Keuangan</h2>
-                    <p class="text-slate-500 text-sm mt-1">Pantau arus kas harian secara real-time</p>
+                <div class="mb-8 bg-gradient-to-r from-indigo-600 to-blue-500 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between shadow-lg shadow-indigo-200 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                    
+                    <div class="relative z-10 text-white w-full md:w-2/3 text-center md:text-left">
+                        <p class="text-indigo-100 font-medium tracking-wide mb-1 uppercase text-sm">Dashboard Pencatatan</p>
+                        <h2 class="text-3xl font-bold mb-3">Selamat Datang, <span id="display-nama" class="text-yellow-300">Pengguna</span>! 👋</h2>
+                        <p class="text-indigo-50 text-sm md:text-base leading-relaxed max-w-lg">
+                            Pantau arus kas harian, cek sisa stok bahan baku, dan kelola piutang <span id="display-usaha" class="font-bold underline decoration-yellow-400 decoration-2 underline-offset-4">Usaha Anda</span> dengan mudah.
+                        </p>
+                    </div>
+                    
+                    <div class="relative z-10 w-full md:w-1/3 flex justify-center mt-8 md:mt-0">
+                        <img src="https://api.dicebear.com/7.x/notionists/svg?seed=LaporanKas" alt="Karakter Pencatatan" class="w-40 md:w-48 drop-shadow-2xl hover:scale-105 transition-transform duration-300">
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl p-6 text-white shadow-lg shadow-emerald-200">
-                        <p class="text-emerald-50 text-sm font-medium">Kas Masuk</p>
+                        <p class="text-emerald-50 text-sm font-medium">Total Kas Masuk</p>
                         <h3 class="text-3xl font-bold mt-2" id="dash-masuk">Rp 0</h3>
                     </div>
+                    
                     <div class="bg-gradient-to-br from-rose-400 to-rose-600 rounded-2xl p-6 text-white shadow-lg shadow-rose-200">
-                        <p class="text-rose-50 text-sm font-medium">Kas Keluar</p>
+                        <p class="text-rose-50 text-sm font-medium">Total Kas Keluar</p>
                         <h3 class="text-3xl font-bold mt-2" id="dash-keluar">Rp 0</h3>
                     </div>
-                    <div class="bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
-                        <p class="text-indigo-100 text-sm font-medium">Saldo Kas Aktif</p>
-                        <h3 class="text-3xl font-bold mt-2" id="dash-saldo">Rp 0</h3>
+                    
+                    <div class="bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl p-6 text-white shadow-lg shadow-slate-300 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-slate-600/30 text-7xl"><i class="fas fa-wallet"></i></div>
+                        <div class="relative z-10">
+                            <p class="text-slate-300 text-sm font-medium">Saldo Kas Aktif</p>
+                            <h3 class="text-3xl font-bold mt-2 text-yellow-400" id="dash-saldo">Rp 0</h3>
+                            <div class="mt-4 pt-4 border-t border-slate-600/50 flex justify-between items-center text-xs text-slate-400 font-medium">
+                                <span><i class="fas fa-piggy-bank mr-1"></i> Modal Awal:</span>
+                                <span id="dash-modal" class="text-slate-200">Rp 0</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Modul Grafik Arus Kas -->
                 <div class="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
                         <i class="fas fa-chart-bar text-indigo-500 mr-2"></i> Grafik Arus Kas Harian
@@ -122,7 +185,61 @@
                 </div>
             </div>
 
-            <!-- 2. TRANSAKSI -->
+            <!-- Teks Konten 2: MODAL AWAL -->
+            <div id="modal" class="tab-content fade-in max-w-5xl mx-auto">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-10">
+                    
+                    <div class="w-full md:w-1/2">
+                        <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-3xl mb-5 shadow-inner">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-800 mb-2">Modal Awal Usaha</h2>
+                        <p class="text-slate-500 text-sm mb-6 leading-relaxed">Tentukan atau perbarui suntikan dana modal awal Anda di sini. Nilai ini akan menjadi dasar perhitungan kalkulasi Saldo Kas Aktif di Dashboard.</p>
+                        
+                        <form id="form-modal-utama" onsubmit="simpanModalUtama(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Nominal Modal (Rp)</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <span class="text-amber-600 font-bold">Rp</span>
+                                    </div>
+                                    <input type="number" id="input-modal-utama" class="w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white pl-12 pr-4 py-4 border focus:ring-2 focus:ring-amber-500 outline-none transition font-bold text-amber-700 text-lg" placeholder="0" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-4 rounded-xl transition shadow-lg shadow-amber-200 flex items-center justify-center gap-2 mt-2">
+                                <i class="fas fa-save"></i> Simpan Data Modal
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="w-full md:w-1/2 bg-slate-50 p-8 rounded-3xl border border-slate-100 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 text-slate-200 text-9xl -mr-8 -mt-8 opacity-50 pointer-events-none">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-700 mb-6 relative z-10">Simulasi Saldo Saat Ini</h3>
+                        <div class="space-y-4 relative z-10">
+                            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                                <span class="text-slate-500 font-medium">Modal Tersimpan</span>
+                                <span class="font-bold text-amber-600 text-lg" id="info-modal-aktif">Rp 0</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                                <span class="text-slate-500 font-medium">Total Kas Masuk</span>
+                                <span class="font-bold text-emerald-500" id="info-kas-masuk">+ Rp 0</span>
+                            </div>
+                            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                                <span class="text-slate-500 font-medium">Total Kas Keluar</span>
+                                <span class="font-bold text-rose-500" id="info-kas-keluar">- Rp 0</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-2">
+                                <span class="text-slate-800 font-bold text-lg">Estimasi Saldo Kas</span>
+                                <span class="font-black text-slate-800 text-2xl" id="info-estimasi-saldo">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teks Konten 3: TRANSAKSI -->
             <div id="transaksi" class="tab-content fade-in max-w-6xl mx-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-1 h-fit">
@@ -176,10 +293,9 @@
                 </div>
             </div>
 
-            <!-- 3. PENGENDALIAN -->
+            <!-- Teks Konten 4: PENGENDALIAN -->
             <div id="pengendalian" class="tab-content fade-in max-w-6xl mx-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Manajemen Stok -->
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                         <div class="flex items-center mb-6">
                             <div class="bg-amber-100 p-3 rounded-xl mr-4"><i class="fas fa-boxes text-amber-600 text-xl"></i></div>
@@ -198,7 +314,6 @@
                         <ul id="list-stok" class="space-y-3 max-h-72 overflow-y-auto pr-2"></ul>
                     </div>
 
-                    <!-- Manajemen Piutang -->
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                         <div class="flex items-center mb-6">
                             <div class="bg-purple-100 p-3 rounded-xl mr-4"><i class="fas fa-hand-holding-dollar text-purple-600 text-xl"></i></div>
@@ -214,7 +329,7 @@
                 </div>
             </div>
 
-            <!-- 4. LAPORAN -->
+            <!-- Teks Konten 5: LAPORAN -->
             <div id="laporan" class="tab-content fade-in max-w-5xl mx-auto">
                 <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-100 text-center relative overflow-hidden">
                     <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-50 rounded-full blur-3xl"></div>
@@ -238,91 +353,172 @@
                     </div>
                 </div>
             </div>
-<!-- Footer Copyright -->
-    <footer class="w-full py-6 mt-auto border-t border-slate-200/60 bg-slate-50/30">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-sm font-medium text-slate-500">
-                &copy; <script>document.write(new Date().getFullYear())</script> KasKel 1 Up. 
-                Dibuat oleh <span class="font-bold text-indigo-600">Yulianto</span>.
-            </p>
-        </div>
-    </footer>
-    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+            <!-- Footer -->
+            <footer class="w-full py-6 mt-auto border-t border-slate-200/60 bg-slate-50/30">
+                <div class="max-w-7xl mx-auto px-4 text-center">
+                    <p class="text-sm font-medium text-slate-500">
+                        &copy; <script>document.write(new Date().getFullYear())</script> KasKel 1 Up. 
+                        Dibuat oleh <span class="font-bold text-indigo-600" id="footer-nama">Pengembang</span>.
+                    </p>
+                </div>
+            </footer>
         </main>
     </div>
 
-    <!-- Javascript Data & Interaksi -->
+    <!-- ================= JAVASCRIPT ================= -->
     <script>
-        // State
-        let kasChart = null; // Penampung grafik Chart.js
-        let kasData = JSON.parse(localStorage.getItem('kasData')) || [];
-        let stokData = JSON.parse(localStorage.getItem('stokData')) || [];
-        let piutangData = JSON.parse(localStorage.getItem('piutangData')) || [];
+        /* ---------------------------------------------------
+           0. LOGIKA PROFIL, FOTO & MODAL AWAL
+        ---------------------------------------------------- */
+        function toggleRightSidebar() {
+            const sidebarRight = document.getElementById('sidebar-right');
+            const overlayRight = document.getElementById('overlay-right');
+            sidebarRight.classList.toggle('translate-x-full');
+            overlayRight.classList.toggle('hidden');
+        }
 
-        const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-
-        // Sidebar Toggle Mobile
+        // PERBAIKAN LOGIKA SIDEBAR KIRI AGAR RESPONSIF
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
             sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
+            if(overlay) overlay.classList.toggle('hidden');
         }
 
-        // Navigasi Tabs
-        function switchTab(tabId, btnElement) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+        function gantiFoto(event) {
+            const file = event.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let profil = JSON.parse(localStorage.getItem('profilToko')) || {};
+                    profil.foto = e.target.result;
+                    localStorage.setItem('profilToko', JSON.stringify(profil));
+                    muatProfil();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
 
-            const titles = {
-                'dashboard': 'Overview Dashboard',
-                'transaksi': 'Manajemen Transaksi',
-                'pengendalian': 'Sistem Pengendalian',
-                'laporan': 'Pusat Laporan'
-            };
-            document.getElementById('page-title').innerText = titles[tabId];
-
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.className = "nav-btn w-full flex items-center px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-medium transition duration-200";
-            });
+        function simpanProfil(e) {
+            e.preventDefault();
+            let profil = JSON.parse(localStorage.getItem('profilToko')) || {};
             
-            if(btnElement) {
-                btnElement.className = "nav-btn w-full flex items-center px-4 py-3 bg-blue-50 text-blue-700 rounded-xl font-medium transition duration-200";
+            profil.nama = document.getElementById('input-nama').value;
+            profil.usaha = document.getElementById('input-usaha').value;
+            profil.alamat = document.getElementById('input-alamat').value;
+
+            localStorage.setItem('profilToko', JSON.stringify(profil));
+            muatProfil(); 
+            toggleRightSidebar();
+        }
+
+        function simpanModalUtama(e) {
+            e.preventDefault();
+            let profil = JSON.parse(localStorage.getItem('profilToko')) || {};
+            
+            profil.modal = parseInt(document.getElementById('input-modal-utama').value) || 0;
+            localStorage.setItem('profilToko', JSON.stringify(profil));
+            
+            muatProfil();
+            updateUI(); 
+            alert('Modal awal berhasil diperbarui!');
+        }
+
+        function muatProfil() {
+            const profilTersimpan = localStorage.getItem('profilToko');
+            const profil = profilTersimpan ? JSON.parse(profilTersimpan) : {
+                nama: 'Yulianto', usaha: 'BisnisPro', alamat: '', modal: 0
+            };
+
+            document.getElementById('input-nama').value = profil.nama;
+            document.getElementById('input-usaha').value = profil.usaha;
+            if(document.getElementById('input-alamat')) {
+                document.getElementById('input-alamat').value = profil.alamat || '';
             }
 
-            if(window.innerWidth < 1024) toggleSidebar();
-            updateUI();
+            const inputModalUtama = document.getElementById('input-modal-utama');
+            if(inputModalUtama) inputModalUtama.value = profil.modal;
+
+            document.getElementById('header-nama').innerText = profil.nama;
+            document.getElementById('header-usaha').innerText = profil.usaha;
+            document.getElementById('display-nama').innerText = profil.nama;
+            document.getElementById('display-usaha').innerText = profil.usaha;
+            document.getElementById('footer-nama').innerText = profil.nama;
+
+            const avatarImg = document.getElementById('header-avatar-img');
+            const avatarInit = document.getElementById('header-avatar-initial');
+            const profilAvatar = document.getElementById('profil-avatar');
+
+            if (profil.foto) {
+                avatarImg.src = profil.foto;
+                profilAvatar.src = profil.foto;
+                avatarImg.classList.remove('hidden');
+                avatarInit.classList.add('hidden');
+            } else {
+                profilAvatar.src = `https://api.dicebear.com/7.x/notionists/svg?seed=${profil.usaha}`;
+                avatarImg.classList.add('hidden');
+                avatarInit.classList.remove('hidden');
+                avatarInit.innerText = profil.nama.charAt(0).toUpperCase();
+            }
         }
 
-        // ---------------- CRUD TRANSAKSI ----------------
-        function tambahTransaksi(e) {
+        /* ---------------------------------------------------
+           1. BAGIAN DATA (Terhubung ke API Back-End)
+        ---------------------------------------------------- */
+        let kasData = [];
+        const API_URL = 'http://localhost:3000/api/kas';
+
+        async function muatDataKas() {
+            try {
+                const response = await fetch(API_URL);
+                kasData = await response.json();
+                updateUI();
+            } catch (error) {
+                console.error("Gagal memuat data dari server, pastikan backend menyala.", error);
+            }
+        }
+
+        async function tambahTransaksi(e) {
             e.preventDefault();
             const tgl = document.getElementById('tgl-transaksi').value;
             const jenis = document.getElementById('jenis-transaksi').value;
             const ket = document.getElementById('ket-transaksi').value;
             const nominal = parseInt(document.getElementById('nom-transaksi').value);
 
-            kasData.push({ id: Date.now(), tgl, jenis, ket, nominal });
-            localStorage.setItem('kasData', JSON.stringify(kasData));
-            document.getElementById('form-transaksi').reset();
-            updateUI();
-        }
-
-        function hapusTransaksi(id) {
-            if(confirm('Yakin ingin menghapus data transaksi ini?')) {
-                kasData = kasData.filter(d => d.id !== id);
-                localStorage.setItem('kasData', JSON.stringify(kasData));
-                updateUI();
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tgl, jenis, ket, nominal })
+                });
+                document.getElementById('form-transaksi').reset();
+                muatDataKas(); 
+            } catch (error) {
+                alert("Gagal menyimpan data ke server!");
             }
         }
 
-        // ---------------- CRUD STOK ----------------
+        async function hapusTransaksi(id) {
+            if(confirm('Yakin ingin menghapus data transaksi ini?')) {
+                try {
+                    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                    muatDataKas();
+                } catch (error) {
+                    alert("Gagal menghapus data!");
+                }
+            }
+        }
+
+        // Data Stok & Piutang
+        let stokData = JSON.parse(localStorage.getItem('stokData')) || [];
+        let piutangData = JSON.parse(localStorage.getItem('piutangData')) || [];
+
         function tambahStok(e) {
             e.preventDefault();
             const nama = document.getElementById('nama-stok').value;
             const jml = document.getElementById('jml-stok').value;
             const satuan = document.getElementById('satuan-stok').value;
-            
             stokData.push({ id: Date.now(), nama, jml, satuan });
             localStorage.setItem('stokData', JSON.stringify(stokData));
             document.getElementById('form-stok').reset();
@@ -337,12 +533,10 @@
             }
         }
 
-        // ---------------- CRUD PIUTANG ----------------
         function tambahPiutang(e) {
             e.preventDefault();
             const nama = document.getElementById('nama-piutang').value;
             const nominal = parseInt(document.getElementById('nom-piutang').value);
-            
             piutangData.push({ id: Date.now(), nama, nominal, lunas: false });
             localStorage.setItem('piutangData', JSON.stringify(piutangData));
             document.getElementById('form-piutang').reset();
@@ -366,17 +560,66 @@
             }
         }
 
-        // ---------------- RENDER UI (TAMPILAN) ----------------
+        /* ---------------------------------------------------
+           2. BAGIAN TAMPILAN / UI (Front-End)
+        ---------------------------------------------------- */
+        let kasChart = null; 
+        const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            const titles = {
+                'dashboard': 'Overview Dashboard',
+                'modal': 'Manajemen Modal Awal',
+                'transaksi': 'Manajemen Transaksi',
+                'pengendalian': 'Sistem Pengendalian',
+                'laporan': 'Pusat Laporan'
+            };
+            document.getElementById('page-title').innerText = titles[tabId];
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn w-full flex items-center px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-medium transition duration-200";
+            });
+            
+            if(btnElement) {
+                btnElement.className = "nav-btn w-full flex items-center px-4 py-3 bg-blue-50 text-blue-700 rounded-xl font-medium transition duration-200";
+            }
+
+            // Memastikan sidebar hanya otomatis tertutup saat pindah menu jika dibuka di layar HP
+            if(window.innerWidth < 1024) {
+                const sidebar = document.getElementById('sidebar');
+                if(!sidebar.classList.contains('-translate-x-full')) {
+                    toggleSidebar();
+                }
+            }
+            updateUI();
+        }
+
         function updateUI() {
-            // Dashboard Calc
+            const profil = JSON.parse(localStorage.getItem('profilToko')) || { modal: 0 };
+            const modalAwal = parseInt(profil.modal) || 0;
+
             let tMasuk = kasData.filter(d => d.jenis === 'masuk').reduce((a, c) => a + c.nominal, 0);
             let tKeluar = kasData.filter(d => d.jenis === 'keluar').reduce((a, c) => a + c.nominal, 0);
-            
+            let saldoAkhir = modalAwal + tMasuk - tKeluar;
+
             document.getElementById('dash-masuk').innerText = formatRupiah(tMasuk);
             document.getElementById('dash-keluar').innerText = formatRupiah(tKeluar);
-            document.getElementById('dash-saldo').innerText = formatRupiah(tMasuk - tKeluar);
+            document.getElementById('dash-saldo').innerText = formatRupiah(saldoAkhir);
+            
+            if(document.getElementById('dash-modal')) {
+                document.getElementById('dash-modal').innerText = formatRupiah(modalAwal);
+            }
 
-            // Tabel Transaksi UI
+            if(document.getElementById('info-modal-aktif')) {
+                document.getElementById('info-modal-aktif').innerText = formatRupiah(modalAwal);
+                document.getElementById('info-kas-masuk').innerText = '+ ' + formatRupiah(tMasuk);
+                document.getElementById('info-kas-keluar').innerText = '- ' + formatRupiah(tKeluar);
+                document.getElementById('info-estimasi-saldo').innerText = formatRupiah(saldoAkhir);
+            }
+
             const tbodyKas = document.getElementById('tabel-transaksi');
             tbodyKas.innerHTML = kasData.length === 0 ? `<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400">Belum ada data transaksi</td></tr>` : '';
             kasData.slice().reverse().forEach(d => {
@@ -396,7 +639,6 @@
                 </tr>`;
             });
 
-            // List Stok UI
             const ulStok = document.getElementById('list-stok');
             ulStok.innerHTML = stokData.length === 0 ? `<div class="text-center text-slate-400 py-4 text-sm">Stok kosong</div>` : '';
             stokData.forEach(s => {
@@ -412,40 +654,7 @@
                     </button>
                 </li>`;
             });
-            // Render Grafik Chart.js
-            const ctx = document.getElementById('arusKasChart'); // Sesuai dengan ID canvas milikmu
-            if (ctx) {
-                // Hancurkan grafik lama jika sudah ada
-                if (kasChart) {
-                    kasChart.destroy();
-                }
-                
-                // Gambar grafik baru
-                kasChart = new Chart(ctx, {
-                    type: 'bar', 
-                    data: {
-                        labels: ['Kas Masuk', 'Kas Keluar'],
-                        datasets: [{
-                            label: 'Nominal (Rp)',
-                            data: [tMasuk, tKeluar], 
-                            backgroundColor: ['#34d399', '#fb7185'], // Warna emerald dan rose
-                            borderRadius: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false, // Wajib agar grafik mengikuti tinggi div "h-72" kodemu
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            y: { beginAtZero: true }
-                        }
-                    }
-                });
-            }
 
-            // List Piutang UI
             const ulPiutang = document.getElementById('list-piutang');
             ulPiutang.innerHTML = piutangData.length === 0 ? `<div class="text-center text-slate-400 py-4 text-sm">Tidak ada piutang</div>` : '';
             piutangData.forEach(p => {
@@ -465,9 +674,34 @@
                     </div>
                 </li>`;
             });
+
+            const ctx = document.getElementById('arusKasChart'); 
+            if (ctx) {
+                if (kasChart) kasChart.destroy();
+                kasChart = new Chart(ctx, {
+                    type: 'bar', 
+                    data: {
+                        labels: ['Kas Masuk', 'Kas Keluar'],
+                        datasets: [{
+                            label: 'Nominal (Rp)',
+                            data: [tMasuk, tKeluar], 
+                            backgroundColor: ['#34d399', '#fb7185'], 
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            }
         }
 
-        // ---------------- EXPORT EXCEL ----------------
+        /* ---------------------------------------------------
+           3. BAGIAN EKSPOR (PDF & EXCEL)
+        ---------------------------------------------------- */
         function exportKeExcel() {
             if(kasData.length === 0) return alert('Data transaksi masih kosong!');
             const dataEkspor = kasData.map((d, i) => ({
@@ -481,62 +715,55 @@
             XLSX.writeFile(wb, "Laporan_Keuangan.xlsx");
         }
 
-        // Init Data Awal
-        updateUI();
-
-        // Export PDF (jsPDF + AutoTable) - Sistematis & Rapi
         function exportKePDF() {
             if(kasData.length === 0) return alert('Data transaksi kosong!');
+            
+            const profil = JSON.parse(localStorage.getItem('profilToko')) || { usaha: 'BisnisPro', modal: 0 };
+            const modalAwal = parseInt(profil.modal) || 0;
             
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            // Header Laporan
             doc.setFontSize(18);
             doc.setFont("helvetica", "bold");
-            doc.text("Buku Kas Harian - Kas Kel 2 Up", 14, 20);
+            doc.text(`Buku Kas Harian - ${profil.usaha}`, 14, 20);
             
             doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(100);
             doc.text(`Dicetak pada: ${new Date().toLocaleDateString('id-ID')} | Waktu: ${new Date().toLocaleTimeString('id-ID')}`, 14, 28);
             
-            // Mapping Data untuk Tabel
             const tableData = kasData.map((d, i) => [
-                i + 1,
-                d.tgl,
-                d.ket,
+                i + 1, d.tgl, d.ket,
                 d.jenis === 'masuk' ? formatRupiah(d.nominal) : '-',
                 d.jenis === 'keluar' ? formatRupiah(d.nominal) : '-'
             ]);
 
-            // Hitung Total untuk Footer Tabel
             let tMasuk = kasData.filter(d => d.jenis === 'masuk').reduce((a, c) => a + c.nominal, 0);
             let tKeluar = kasData.filter(d => d.jenis === 'keluar').reduce((a, c) => a + c.nominal, 0);
             
-            tableData.push(['', '', 'TOTAL', formatRupiah(tMasuk), formatRupiah(tKeluar)]);
-            tableData.push(['', '', 'SALDO AKHIR', { content: formatRupiah(tMasuk - tKeluar), colSpan: 2, styles: { halign: 'center', fontStyle: 'bold', fillColor: [241, 245, 249] } }]);
+            tableData.push(['', '', 'MODAL AWAL', { content: formatRupiah(modalAwal), colSpan: 2, styles: { halign: 'right', fontStyle: 'bold' } }]);
+            tableData.push(['', '', 'TOTAL TRANSAKSI', formatRupiah(tMasuk), formatRupiah(tKeluar)]);
+            tableData.push(['', '', 'SALDO AKHIR', { content: formatRupiah(modalAwal + tMasuk - tKeluar), colSpan: 2, styles: { halign: 'center', fontStyle: 'bold', fillColor: [241, 245, 249] } }]);
 
-            // Render Tabel
             doc.autoTable({
                 startY: 35,
                 head: [['No', 'Tanggal', 'Keterangan', 'Kas Masuk', 'Kas Keluar']],
                 body: tableData,
                 theme: 'grid',
-                headStyles: { fillColor: [79, 70, 229] }, // Warna Indigo Tailwind
+                headStyles: { fillColor: [79, 70, 229] }, 
                 styles: { fontSize: 9 },
                 columnStyles: { 
-                    3: { halign: 'right' }, 
-                    4: { halign: 'right' },
-                    0: { halign: 'center', cellWidth: 15 }
+                    3: { halign: 'right' }, 4: { halign: 'right' }, 0: { halign: 'center', cellWidth: 15 }
                 }
             });
             
             doc.save("Laporan_PDF_UMKM.pdf");
         }
 
-        // Init
-        updateUI();
+        // INIT APLIKASI
+        muatProfil(); 
+        muatDataKas(); 
     </script>
 </body>
 </html>
